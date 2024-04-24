@@ -365,18 +365,17 @@ def main():
         label = "Please upload a video preferably sideview.",type=["mp4", "mpeg"])
         st.set_option('deprecation.showfileUploaderEncoding', False)
 
-        # # open the Video using cv2
-        # if Video_path is not None:
-        #     #cap = cv2.VideoCapture(Video_path)
+        # open the Video using cv2
+        if Video_path is not None:
+            video_bytes = Video_path.read()
+            #cap = cv2.VideoCapture(Video_path)
             
-        # else:
-        Video_path =DEMO_VIDEO
+        else:
+            video_bytes =DEMO_VIDEO
             #cap = cv2.VideoCapture(Video_path)
 
-        #st.video(Video_path) 
-        bytes_data = Video_path.getvalue()
-        st.write(Video_path)  
-        st.write(bytes_data)
+        st.video(video_bytes)
+
 
         ####
 # def clear_cache():
