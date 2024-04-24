@@ -368,15 +368,39 @@ def main():
         # open the Video using cv2
         if Video_path is not None:
             video_bytes = Video_path.read()
-            #cap = cv2.VideoCapture(Video_path)
+            
             
         else:
             video_bytes =DEMO_VIDEO
             #cap = cv2.VideoCapture(Video_path)
 
         st.video(video_bytes)
+        cap = cv2.VideoCapture(video_bytes)
 
+        # Meta.
+        fps = int(cap.get(cv2.CAP_PROP_FPS))
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        frame_size = (width, height)
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
+        while cap.isOpened():
+            # Capture frames.
+            success, image = cap.read()
+            if not success:
+                print("Null.Frames")
+                break
+            # Get fps.
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            # Get height and width.
+            h, w = image.shape[:2]
+
+            # Convert the BGR image to RGB.
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+            # Process the image.
+            keypoints = media.detectPose(image_pose=image,MIN_CONFIEDENCE=detection_confidence)
+            st.write(keypoints)
         ####
 # def clear_cache():
 #     keys = list(st.session_state.keys())
