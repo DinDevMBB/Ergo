@@ -355,13 +355,30 @@ def main():
         """,
         unsafe_allow_html=True,
         )
-        video_file_buffer  = st.sidebar.file_uploader(
+
+
+       
+       
+
+       # upload an image
+        Video_path = st.sidebar.file_uploader(
         label = "Please upload a video preferably sideview.",type=["mp4", "mpeg"])
         st.set_option('deprecation.showfileUploaderEncoding', False)
 
-        st.video(DEMO_VIDEO)
+        # # open the Video using cv2
+        # if Video_path is not None:
+        #     #cap = cv2.VideoCapture(Video_path)
+            
+        # else:
+        Video_path =DEMO_VIDEO
+            #cap = cv2.VideoCapture(Video_path)
 
-        #####
+        #st.video(Video_path) 
+        bytes_data = Video_path.getvalue()
+        st.write(Video_path)  
+        st.write(bytes_data)
+
+        ####
 # def clear_cache():
 #     keys = list(st.session_state.keys())
 #     for key in keys:
