@@ -54,15 +54,15 @@ def detectPose(image_pose,MIN_CONFIEDENCE):
     landmarked_image = image_pose.copy()
 
     if resultant.pose_landmarks:    
-        mp_drawing.draw_landmarks(image=landmarked_image, landmark_list=resultant.pose_landmarks,
-                                  connections=mp_pose.POSE_CONNECTIONS,
-                                  landmark_drawing_spec=mp_drawing.DrawingSpec(color=(255,255,255),
-                                                                               thickness=1, circle_radius=1),
-                                  connection_drawing_spec=mp_drawing.DrawingSpec(color=(49,125,237),
-                                                                               thickness=1, circle_radius=1))
+        # mp_drawing.draw_landmarks(image=landmarked_image, landmark_list=resultant.pose_landmarks,
+        #                           connections=mp_pose.POSE_CONNECTIONS,
+        #                           landmark_drawing_spec=mp_drawing.DrawingSpec(color=(255,255,255),
+        #                                                                        thickness=1, circle_radius=1),
+        #                           connection_drawing_spec=mp_drawing.DrawingSpec(color=(49,125,237),
+        #                                                                        thickness=1, circle_radius=1))
 
-        left_wrist_landmark = (resultant.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST].x * w,
-                                resultant.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST].y *h)
+        # left_wrist_landmark = (resultant.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST].x * w,
+        #                         resultant.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST].y *h)
         
         
         lm = resultant.pose_landmarks
@@ -79,6 +79,10 @@ def detectPose(image_pose,MIN_CONFIEDENCE):
         # Left Wrist.
         l_wrist_x = int(lm.landmark[lmPose.LEFT_WRIST].x * w)
         l_wrist_y = int(lm.landmark[lmPose.LEFT_WRIST].y * h)
+
+        # Left Elbow.
+        l_elbow_x = int(lm.landmark[lmPose.LEFT_ELBOW].x * w)
+        l_elbow_y = int(lm.landmark[lmPose.LEFT_ELBOW].y * h)
 
         # Right ear.
         r_ear_x = int(lm.landmark[lmPose.RIGHT_EAR].x * w)
@@ -161,8 +165,8 @@ def detectPose(image_pose,MIN_CONFIEDENCE):
 
 
         # # mark dot
-        # x1 =int(left_wrist_landmark[0])
-        # y1 =int(left_wrist_landmark[1])
+        #x1 =int(left_wrist_landmark[0])
+        #y1 =int(left_wrist_landmark[1])
         # cv2.circle(landmarked_image,(x1,y1), 7, yellow, -1)
 
         # Upper Arm Angle
@@ -177,6 +181,43 @@ def detectPose(image_pose,MIN_CONFIEDENCE):
         wrist_bend_angle =0
         wrist_bend_angle =180- findAngle(r_index_x, r_index_y, r_wrist_x, r_wrist_y)
 
+        # Nose
+        nose_x = int(lm.landmark[lmPose.NOSE].x * w)
+        nose_y = int(lm.landmark[lmPose.NOSE].y * h) 
+
+        # mid of shoulder
+        m_shldr_x =int((r_shldr_x+l_shldr_x)/2)
+        m_shldr_y =int((r_shldr_y+l_shldr_y)/2)
+
+        # mid of ear
+        m_ear_x =int((r_ear_x+l_ear_x)/2)
+        m_ear_y =int((r_ear_y+l_ear_y)/2) 
+
+        # mid of hip
+        m_hip_x =int((r_hip_x+l_hip_x)/2)
+        m_hip_y =int((r_hip_y+l_hip_y)/2)      
+
+
+
+
+
+        
+        cv2.circle(landmarked_image,(m_shldr_x,m_shldr_y), 3, yellow, -1)
+        cv2.circle(landmarked_image,(m_ear_x,m_ear_y), 30, yellow, -1)
+        cv2.circle(landmarked_image,(m_hip_x,m_hip_y), 3, yellow, -1)
+        cv2.line(landmarked_image, (m_shldr_x,m_shldr_y), (m_ear_x,m_ear_y), green, 4)
+        cv2.line(landmarked_image, (l_shldr_x,l_shldr_y), (r_shldr_x,r_shldr_y), blue, 4)
+        cv2.line(landmarked_image, (m_shldr_x,m_shldr_y), (m_hip_x,m_hip_y), green, 4)
+        cv2.line(landmarked_image, (l_hip_x,l_hip_y), (r_hip_x,r_hip_y), blue, 4)
+        cv2.line(landmarked_image, (l_hip_x,l_hip_y), (l_knee_x,l_knee_y), blue, 4)
+        cv2.line(landmarked_image, (r_hip_x,r_hip_y), (r_knee_x,r_knee_y), blue, 4)
+        cv2.line(landmarked_image, (l_knee_x,l_knee_y), (l_ankle_x,l_ankle_y), blue, 4)
+        cv2.line(landmarked_image, (r_knee_x,r_knee_y), (r_ankle_x,r_ankle_y), blue, 4)
+        cv2.line(landmarked_image, (r_shldr_x,r_shldr_y), (r_elbow_x,r_elbow_y), blue, 4)
+        cv2.line(landmarked_image, (r_wrist_x,r_wrist_y), (r_elbow_x,r_elbow_y), blue, 4)
+        cv2.line(landmarked_image, (l_shldr_x,l_shldr_y), (l_elbow_x,l_elbow_y), blue, 4)
+        cv2.line(landmarked_image, (l_wrist_x,l_wrist_y), (l_elbow_x,l_elbow_y), blue, 4)
+        #cv2.circle(landmarked_image,(x1,y1), 7, yellow, -1)
     
     else:
         neck_inclination = 0
