@@ -24,6 +24,69 @@ def findDistance(x1, y1, x2, y2):
     dist = m.sqrt((x2-x1)**2+(y2-y1)**2)
     return dist
 
+def neck_incl(angle):
+    if (angle >=0 and angle <=20):
+        score =1
+    else:
+        score =2
+    return score
+
+def neck_tilt_score(ratio):
+    if (ratio >=0.3 and ratio <= 1.3):
+        score =0
+    else:
+        score =1
+    return score  
+def trunk_score(angle):
+    if angle ==0:
+        score =1
+    elif (angle >0 and angle <=20):
+        score =2
+    elif (angle >20 and angle <=60):
+        score =3
+    elif angle <0:
+        score =3
+    else:
+        score =4
+    return score
+def trunk_twist_score(ratio):
+    if (ratio >=0.3 and ratio <= 1.3):
+        score =0
+    else:
+        score =1
+    return score
+def uarm_score(angle):
+    if angle ==0:
+        score =1
+    elif (angle >-20 and angle <=20):
+        score =1
+    elif (angle >20 and angle <=45):
+        score =2
+    elif (angle >45 and angle <=90):
+        score =3
+    elif (angle >90):
+        score =4
+    else:
+        score =4
+    return score
+def larm_score(angle):
+    if angle ==0:
+        score =1
+    elif (angle >0 and angle <=20):
+        score =1
+    else:
+        score =2
+    return score
+
+def wrist_score(angle):
+    if angle ==0:
+        score =1
+    elif (angle >-15 and angle <=15):
+        score =1
+    else:
+        score =2
+    return score
+
 # Initilize medipipe selfie segmentation class.
 # mp_pose = mp.solutions.pose
 # mp_holistic = mp.solutions.holistic
@@ -97,6 +160,8 @@ def detectPose(image_pose,MIN_CONFIEDENCE):
         r_wrist_x = int(lm.landmark[lmPose.RIGHT_WRIST].x * w)
         r_wrist_y = int(lm.landmark[lmPose.RIGHT_WRIST].y * h)
 
+
+
         # Right Elbow.
         r_elbow_x = int(lm.landmark[lmPose.RIGHT_ELBOW].x * w)
         r_elbow_y = int(lm.landmark[lmPose.RIGHT_ELBOW].y * h)
@@ -104,6 +169,10 @@ def detectPose(image_pose,MIN_CONFIEDENCE):
         # Right index.
         r_index_x = int(lm.landmark[lmPose.RIGHT_INDEX].x * w)
         r_index_y = int(lm.landmark[lmPose.RIGHT_INDEX].y * h)
+    
+        # Left index.
+        l_index_x = int(lm.landmark[lmPose.LEFT_INDEX].x * w)
+        l_index_y = int(lm.landmark[lmPose.LEFT_INDEX].y * h)
 
         # Right Hip.
         r_hip_x = int(lm.landmark[lmPose.RIGHT_HIP].x * w)
@@ -164,19 +233,24 @@ def detectPose(image_pose,MIN_CONFIEDENCE):
         cv2.line(landmarked_image, (r_wrist_x,r_wrist_y), (r_elbow_x,r_elbow_y), blue, 4)
         cv2.line(landmarked_image, (l_shldr_x,l_shldr_y), (l_elbow_x,l_elbow_y), blue, 4)
         cv2.line(landmarked_image, (l_wrist_x,l_wrist_y), (l_elbow_x,l_elbow_y), blue, 4)
-        #cv2.circle(landmarked_image,(x1,y1), 7, yellow, -1)           
-        
+        #cv2.circle(landmarked_image,(x1,y1), 7, yellow, -1) 
+                  
+    #################################################################################    
         # Calculate angles.
         neck_inclination =0
         #neck_inclination = findAngle(l_shldr_x, l_shldr_y, l_ear_x, l_ear_y)
-        neck_inclination = findAngle(m_shldr_x, m_shldr_y, m_ear_x, m_ear_y)
+        neck_angle = findAngle(m_shldr_x, m_shldr_y, m_ear_x, m_ear_y)
 
         # calcualte neck tilt
         neck_tilt =0
         left_dist = findDistance(l_ear_x, l_ear_y, l_shldr_x, l_shldr_y)
         right_dist =findDistance(r_ear_x, r_ear_y, r_shldr_x, r_shldr_y)
         neck_tilt =left_dist/right_dist
-        
+
+        neck_score = neck_incl(neck_angle)
+        tilt_score = neck_tilt_score(neck_tilt)
+
+    ####################################################################################  
         # calcuate trunk angle
         bend_angle =0
         #left_bend = 180- findAngle(l_shldr_x, l_shldr_y, l_hip_x, l_hip_y)
@@ -188,6 +262,10 @@ def detectPose(image_pose,MIN_CONFIEDENCE):
         right_dist =findDistance(l_shldr_x, l_shldr_y, r_hip_x, r_hip_y)
         trunk_twist =left_dist/right_dist
 
+        bend_score = trunk_score(bend_angle)
+        twist_score = trunk_twist_score(trunk_twist)
+
+#################################################################################################
         # Calcualte knee angle
         a = np.array([l_hip_x,l_hip_y])
         b = np.array([l_knee_x,l_knee_y])
@@ -202,42 +280,77 @@ def detectPose(image_pose,MIN_CONFIEDENCE):
         leg_angle = max(left_leg_angle,right_leg_angle)
         leg_ratio = left_leg_angle/right_leg_angle
 
+        leg_score = trunk_score(180-leg_angle)
+        leg_twist_score = trunk_twist_score(leg_ratio)
+
+#############################################################################################
+
         # Right Upper Arm Angle
         rigth_uarm_bend =0
         rigth_uarm_bend = 180- findAngle(r_shldr_x, r_shldr_y, r_elbow_x, r_elbow_y)
         
         # Left Upper Arm Angle
         left_uarm_bend =0
-        left_uarm_bend = 180- findAngle(r_shldr_x, r_shldr_y, r_elbow_x, r_elbow_y)
+        left_uarm_bend = 180- findAngle(l_shldr_x, l_shldr_y, l_elbow_x, l_elbow_y)
 
         # Upper Arm Angle
 
         uarm_bend =max(rigth_uarm_bend,left_uarm_bend)
 
+        upper_arm_score = uarm_score(uarm_bend)
+        twist_score = trunk_twist_score(neck_tilt)
     
+    ##################################################################################
         # lower Arm Angle
         rigth_larm_bend =0
         rigth_larm_bend = 180- findAngle(r_elbow_x, r_elbow_y, r_wrist_x, r_wrist_y)
 
+        # lower Arm Angle
+        left_larm_bend =0
+        left_larm_bend = 180- findAngle(l_elbow_x, l_elbow_y, l_wrist_x, l_wrist_y)
+
+        larm_bend =max(rigth_larm_bend,left_larm_bend)
+
+
+        lower_arm_score = larm_score(larm_bend)
+###########################################################################################
         # Wrist Angle
-        wrist_bend_angle =0
-        wrist_bend_angle =180- findAngle(r_index_x, r_index_y, r_wrist_x, r_wrist_y)
+        r_wrist_bend_angle =0
+        r_wrist_bend_angle =180- findAngle(r_index_x, r_index_y, r_wrist_x, r_wrist_y)
 
+        l_wrist_bend_angle =0
+        l_wrist_bend_angle =180- findAngle(l_index_x, l_index_y, l_wrist_x, l_wrist_y)
 
+        wrist_bend_angle =max(r_wrist_bend_angle,l_wrist_bend_angle)
+
+        wrist_angle_score = wrist_score(wrist_bend_angle)
+
+##########################################################################################
        
     
     else:
-        neck_inclination = 0
-        neck_tilt= 1
-        bend_angle =0
-        trunk_twist =0
-        leg_angle =0
-        leg_ratio =0
-        uarm_bend =0
-        rigth_larm_bend =0
-        wrist_bend_angle =0
+        # neck_inclination = 0
+        # neck_tilt= 1
+        # bend_angle =0
+        # trunk_twist =0
+        # leg_angle =0
+        # leg_ratio =0
+        # uarm_bend =0
+        # rigth_larm_bend =0
+        # wrist_bend_angle =0
+        # neck_score =0
+        # tilt_score =0
+        # bend_score =0
+        # twist_score =0
+        # leg_score = 0
+        # leg_twist_score = 0
+        # upper_arm_score = 0
+        # lower_arm_score =0
+        # wrist_angle_score =0
+        neck_inclination,neck_tilt,neck_score,tilt_score,bend_angle,trunk_twist,bend_score,twist_score,leg_angle,leg_ratio,leg_score,leg_twist_score,uarm_bend,upper_arm_score,larm_bend,lower_arm_score,wrist_bend_angle,wrist_angle_score =0
+        
 
-    return landmarked_image,neck_inclination,neck_tilt,bend_angle,trunk_twist,leg_angle,leg_ratio,uarm_bend,rigth_larm_bend,wrist_bend_angle
+    return landmarked_image,neck_inclination,neck_tilt,neck_score,tilt_score,bend_angle,trunk_twist,bend_score,twist_score,leg_angle,leg_ratio,leg_score,leg_twist_score,uarm_bend,upper_arm_score,larm_bend,lower_arm_score,wrist_bend_angle,wrist_angle_score
 
     
       

@@ -149,7 +149,7 @@ def main():
         image_in_RGB = cv2.cvtColor(r_image, cv2.COLOR_BGR2RGB)
 
         # Here we will read our image from the specified path to detect the pose
-        img,neck_angle,neck_tilt,bend,twist,leg_angle,leg_ratio,uarm_angle,larm_angle,wrist_angle= media.detectPose(image_pose=image_in_RGB,MIN_CONFIEDENCE=detection_confidence)
+        img,neck_angle,neck_tilt,neck_score,tilt_score,bend,twist,bend_score,twist_score,leg_angle,leg_ratio,leg_score,leg_twist_score,uarm_angle,upper_arm_score,larm_angle,lower_arm_score,wrist_angle,wrist_angle_score= media.detectPose(image_pose=image_in_RGB,MIN_CONFIEDENCE=detection_confidence)
     
         st.image(img)
         st.button('Click Here to Update Score after loading new image',)
@@ -208,11 +208,11 @@ def main():
 
         p=r'neck_angle.png'
         col1.image(p, use_column_width=True)
-        neck_score = posture.neck_inclination(bend)
+        
         with col2:
             st.text(round(neck_angle))
         col3.text(neck_score)
-        tilt_score = posture.neck_tilt_score(neck_tilt)
+        
         col4.text(tilt_score)
         final_neck_score = neck_score + tilt_score
     ###############################################################################################
@@ -226,11 +226,11 @@ def main():
 
         p=r'trunk.png'
         col1.image(p, use_column_width=True)
-        bend_score = posture.trunk_score(bend)
+        
         with col2:
             st.text(round(bend))
         col3.text(bend_score)
-        twist_score = posture.trunk_twist_score(twist)
+        
         col4.text(twist_score)
         final_trunk_score = bend_score + twist_score
     #################################################################################
@@ -242,11 +242,11 @@ def main():
         col4.caption("Adjust")
         p=r'legs.png'
         col1.image(p, use_column_width=True)
-        leg_score = posture.trunk_score(180-leg_angle)
+        
         with col2:
             st.text(round(180-leg_angle))
         col3.text(leg_score)
-        leg_twist_score = posture.trunk_twist_score(twist)
+        
         col4.text(leg_twist_score)
         final_leg_score = leg_score + leg_twist_score
 
@@ -270,11 +270,11 @@ def main():
 
         p=r'upper_arm.png'
         col1.image(p, use_column_width=True)
-        upper_arm_score = posture.uarm_score(uarm_angle)
+        
         with col2:
             st.text(round(uarm_angle))
         col3.text(upper_arm_score)
-        twist_score = posture.trunk_twist_score(twist)
+        
         # col4.text(twist_score)
         # final_trunk_score = upper_arm_score + twist_score
     ################################################################################
@@ -289,7 +289,7 @@ def main():
 
         p=r'lower_arm.png'
         col1.image(p, use_column_width=True)
-        lower_arm_score = posture.larm_score(larm_angle)
+        
         with col2:
             st.text(round(larm_angle))
         col3.text(lower_arm_score)
@@ -308,7 +308,7 @@ def main():
 
         p=r'wrist_angle.png'
         col1.image(p, use_column_width=True)
-        wrist_angle_score = posture.wrist_score(wrist_angle)
+        
         with col2:
             st.text(round(wrist_angle))
         col3.text(wrist_angle_score)
