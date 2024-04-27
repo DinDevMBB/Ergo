@@ -329,25 +329,26 @@ def detectPose(image_pose,MIN_CONFIEDENCE):
        
     
     else:
-        # neck_inclination = 0
-        # neck_tilt= 1
-        # bend_angle =0
-        # trunk_twist =0
-        # leg_angle =0
-        # leg_ratio =0
-        # uarm_bend =0
-        # rigth_larm_bend =0
-        # wrist_bend_angle =0
-        # neck_score =0
-        # tilt_score =0
-        # bend_score =0
-        # twist_score =0
-        # leg_score = 0
-        # leg_twist_score = 0
-        # upper_arm_score = 0
-        # lower_arm_score =0
-        # wrist_angle_score =0
-        neck_inclination,neck_tilt,neck_score,tilt_score,bend_angle,trunk_twist,bend_score,twist_score,leg_angle,leg_ratio,leg_score,leg_twist_score,uarm_bend,upper_arm_score,larm_bend,lower_arm_score,wrist_bend_angle,wrist_angle_score =0
+        neck_inclination = 0
+        neck_tilt= 1
+        bend_angle =0
+        trunk_twist =0
+        leg_angle =0
+        leg_ratio =0
+        uarm_bend =0
+        rigth_larm_bend =0
+        wrist_bend_angle =0
+        neck_score =0
+        tilt_score =0
+        bend_score =0
+        twist_score =0
+        leg_score = 0
+        leg_twist_score = 0
+        upper_arm_score = 0
+        lower_arm_score =0
+        wrist_angle_score =0
+        larm_bend =0
+        #neck_inclination,neck_tilt,neck_score,tilt_score,bend_angle,trunk_twist,bend_score,twist_score,leg_angle,leg_ratio,leg_score,leg_twist_score,uarm_bend,upper_arm_score,larm_bend,lower_arm_score,wrist_bend_angle,wrist_angle_score =0
         
 
     return landmarked_image,neck_inclination,neck_tilt,neck_score,tilt_score,bend_angle,trunk_twist,bend_score,twist_score,leg_angle,leg_ratio,leg_score,leg_twist_score,uarm_bend,upper_arm_score,larm_bend,lower_arm_score,wrist_bend_angle,wrist_angle_score

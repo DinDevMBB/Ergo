@@ -10,12 +10,15 @@ import media
 import posture
 import Score_table
 import gc
+import av
+import io
 
 def main():
     # intialize sample image and video
     DEMO_IMAGE = 'demo.jpg'
     DEMO_VIDEO = 'input.mp4'
-
+    # Create an empty list to store images
+    processed_frames  = [] # Empty list of image array
 
     #@st.cache(allow_output_mutation=True) // updated in new version
     @st.cache_resource
@@ -341,20 +344,20 @@ def main():
 
 
     elif app_mode =='Run on Video':
-        st.markdown(
-        """
-        <style>
-        [data-testid="stSidebar"][aria-expanded="true"] > div:first-child {
-            width: 250px;
-        }
-        [data-testid="stSidebar"][aria-expanded="false"] > div:first-child {
-            width: 250px;
-            margin-left: -250px;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-        )
+        #st.markdown(
+        # """
+        # <style>
+        # [data-testid="stSidebar"][aria-expanded="true"] > div:first-child {
+        #     width: 250px;
+        # }
+        # [data-testid="stSidebar"][aria-expanded="false"] > div:first-child {
+        #     width: 250px;
+        #     margin-left: -250px;
+        # }
+        # </style>
+        # # """,
+        # unsafe_allow_html=True,
+        # )
 
 
        
@@ -374,34 +377,72 @@ def main():
             video_bytes =DEMO_VIDEO
             #cap = cv2.VideoCapture(Video_path)
 
-        st.video(video_bytes)
+        #st.video(video_bytes)
         cap = cv2.VideoCapture(video_bytes)
 
-        # Meta.
-        fps = int(cap.get(cv2.CAP_PROP_FPS))
-        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        frame_size = (width, height)
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        if cap is True:
+                
+            # Meta.
+            fps = int(cap.get(cv2.CAP_PROP_FPS))
+            width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            # frame_size = (width, height)
+            # fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        else: 
+            print("Video not open")
 
         while cap.isOpened():
             # Capture frames.
-            success, image = cap.read()
+            success, img = cap.read()
             if not success:
                 print("Null.Frames")
                 break
-            # Get fps.
-            fps = cap.get(cv2.CAP_PROP_FPS)
-            # Get height and width.
-            h, w = image.shape[:2]
+            else:
+                frame,neck_angle,neck_tilt,neck_score,tilt_score,bend,twist,bend_score,twist_score,leg_angle,leg_ratio,leg_score,leg_twist_score,uarm_angle,upper_arm_score,larm_angle,lower_arm_score,wrist_angle,wrist_angle_score= media.detectPose(image_pose=img,MIN_CONFIEDENCE=detection_confidence)
+                processed_frames.append(frame)
+        
+        
+        def create_recreated_video(processed_frames,fps,width,height):
+            #width, height, fps = processed_frames[0].shape[1], processed_frames[0].shape[0], 30
+            output_memory_file = io.BytesIO()
+            output = av.open(output_memory_file, 'w', format="mp4")
+            stream = output.add_stream('h264', str(fps))
+            stream.width = width
+            stream.height = height
+            stream.pix_fmt = 'yuv420p'
+            stream.options = {'crf': '17'}
 
-            # Convert the BGR image to RGB.
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            for frame in processed_frames:
+                frame = av.VideoFrame.from_ndarray(frame, format='bgr24')
+                packet = stream.encode(frame)
+                output.mux(packet)
 
-            # Process the image.
-            keypoints = media.detectPose(image_pose=image,MIN_CONFIEDENCE=detection_confidence)
-            st.write(keypoints)
-        ####
+            packet = stream.encode(None)
+            output.mux(packet)
+            output.close()
+            output_memory_file.seek(0)
+            return output_memory_file
+
+        # Example usage
+        # processed_frames = ...  # Your processed frames here
+        recreated_video_file = create_recreated_video(processed_frames)
+
+        # Display the recreated video in Streamlit
+        st.title("Recreated Video")
+        st.video(recreated_video_file)
+                
+        #     # Get fps.
+        #     fps = cap.get(cv2.CAP_PROP_FPS)
+        #     # Get height and width.
+        #     h, w = image.shape[:2]
+
+        #     # Convert the BGR image to RGB.
+        #     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        #     # Process the image.
+        #     keypoints = media.detectPose(image_pose=image,MIN_CONFIEDENCE=detection_confidence)
+            
+        ###
 # def clear_cache():
 #     keys = list(st.session_state.keys())
 #     for key in keys:
