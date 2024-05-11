@@ -197,6 +197,9 @@ def main():
 
         st.markdown(html_str, unsafe_allow_html=True)
         conc = conclusion(st.session_state.TblC_Score)
+        st. cache_resource. clear()
+        st.cache_data.clear()
+
         
             
 
