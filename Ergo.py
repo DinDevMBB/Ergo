@@ -434,24 +434,6 @@ def main():
         st.title("Recreated Video")
         st.video(recreated_video_file)
                 
-        #     # Get fps.
-        #     fps = cap.get(cv2.CAP_PROP_FPS)
-        #     # Get height and width.
-        #     h, w = image.shape[:2]
-
-        #     # Convert the BGR image to RGB.
-        #     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-        #     # Process the image.
-        #     keypoints = media.detectPose(image_pose=image,MIN_CONFIEDENCE=detection_confidence)
-            
-        ###
-# def clear_cache():
-#     keys = list(st.session_state.keys())
-#     for key in keys:
-#         st.session_state.pop(key)
-# def clear():
-#     st.button('Clear Cache', on_click=clear_cache)
 
 if __name__ == "__main__":
     gc.enable()
