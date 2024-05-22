@@ -4,5 +4,6 @@ opencv_contrib_python
 opencv_python
 opencv_python_headless
 pandas
-Pillow==10.3.0
+Pillow==10.2.0
 streamlit==1.33.0
+av==12.0.0
